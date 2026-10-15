@@ -1,0 +1,218 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// NOTE: SQLite does not support enums or Json type.
+// Enums are stored as String. Json fields are stored as String (serialize/parse in app code).
+// Valid values documented below each field.
+
+model User {
+  id             String   @id @default(uuid())
+  name           String
+  email          String   @unique
+  passwordHash   String?
+  role           String   @default("USER")        // "USER" | "SUPER_ADMIN"
+  emailVerified  Boolean  @default(false)
+  emailToken     String?
+  resetToken     String?
+  resetTokenExp  DateTime?
+  oauthProvider  String?
+  oauthId        String?
+  avatarUrl      String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  memberships    OrgMember[]
+  auditLogs      AuditLog[]
+  reviews        CertificateReview[]
+
+  @@index([email])
+}
+
+model Organization {
+  id          String   @id @default(uuid())
+  name        String
+  type        String
+  logoUrl     String?
+  website     String?
+  description String?
+  email       String
+  phone       String?
+  address     String?
+  suspended   Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  members      OrgMember[]
+  templates    CertificateTemplate[]
+  certificates Certificate[]
+  recipients   Recipient[]
+  auditLogs    AuditLog[]
+  invitations  StaffInvitation[]
+}
+
+model OrgMember {
+  id             String   @id @default(uuid())
+  organizationId String
+  userId         String
+  role           String   @default("STAFF")       // "OWNER" | "ADMIN" | "STAFF"
+  createdAt      DateTime @default(now())
+
+  organization   Organization  @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  user           User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([organizationId, userId])
+  @@index([organizationId])
+  @@index([userId])
+}
+
+model CertificateTemplate {
+  id             String   @id @default(uuid())
+  organizationId String
+  name           String
+  configuration  String   // JSON string
+  previewUrl     String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  organization   Organization  @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  certificates   Certificate[]
+
+  @@index([organizationId])
+}
+
+model Recipient {
+  id             String   @id @default(uuid())
+  organizationId String
+  name           String
+  email          String
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  organization   Organization  @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  certificates   Certificate[]
+
+  @@unique([organizationId, email])
+  @@index([organizationId])
+  @@index([email])
+}
+
+model Certificate {
+  id              String   @id @default(uuid())
+  certificateId   String   @unique
+  organizationId  String
+  templateId      String?
+  recipientId     String
+  title           String
+  description     String?
+  achievement     String?
+  customMessage   String?
+  issueDate       DateTime
+  expiryDate      DateTime?
+  status          String   @default("ACTIVE")          // "ACTIVE" | "REVOKED" | "EXPIRED"
+  pdfUrl          String?
+  qrCodeUrl       String?
+  verificationUrl String
+  certificateHash      String?
+  issuedById           String?
+  blockchainTxHash     String?
+  blockchainHash       String?
+  blockchainStatus     String   @default("PENDING")    // "PENDING" | "CONFIRMED" | "FAILED"
+  blockchainNetwork    String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  organization    Organization          @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  template        CertificateTemplate?  @relation(fields: [templateId], references: [id])
+  recipient       Recipient             @relation(fields: [recipientId], references: [id])
+  revocation      Revocation?
+  reviews         CertificateReview[]
+
+  @@index([certificateId])
+  @@index([organizationId])
+  @@index([recipientId])
+  @@index([status])
+  @@index([createdAt])
+}
+
+model Revocation {
+  id            String   @id @default(uuid())
+  certificateId String   @unique
+  reason        String
+  revokedById   String?
+  revokedAt     DateTime @default(now())
+
+  certificate   Certificate @relation(fields: [certificateId], references: [id], onDelete: Cascade)
+}
+
+model AuditLog {
+  id             String   @id @default(uuid())
+  organizationId String?
+  userId         String?
+  action         String
+  resourceType   String?
+  resourceId     String?
+  metadata       String?  // JSON string
+  ipAddress      String?
+  createdAt      DateTime @default(now())
+
+  organization   Organization? @relation(fields: [organizationId], references: [id])
+  user           User?         @relation(fields: [userId], references: [id])
+
+  @@index([organizationId])
+  @@index([userId])
+  @@index([createdAt])
+}
+
+model VerificationLog {
+  id            String   @id @default(uuid())
+  certificateId String
+  ipAddress     String?
+  userAgent     String?
+  createdAt     DateTime @default(now())
+
+  @@index([certificateId])
+  @@index([createdAt])
+}
+
+model StaffInvitation {
+  id             String   @id @default(uuid())
+  organizationId String
+  email          String
+  tokenHash      String   @unique
+  role           String   @default("STAFF")            // "OWNER" | "ADMIN" | "STAFF"
+  status         String   @default("PENDING")          // "PENDING" | "ACCEPTED" | "EXPIRED"
+  invitedById    String?
+  expiresAt      DateTime
+  acceptedAt     DateTime?
+  createdAt      DateTime @default(now())
+
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@unique([organizationId, email])
+  @@index([tokenHash])
+  @@index([organizationId])
+}
+
+model CertificateReview {
+  id            String   @id @default(uuid())
+  certificateId String
+  reviewerId    String
+  decision      String   @default("PENDING")           // "PENDING" | "APPROVED" | "REJECTED"
+  comment       String?
+  decidedAt     DateTime?
+  createdAt     DateTime @default(now())
+
+  certificate   Certificate @relation(fields: [certificateId], references: [id], onDelete: Cascade)
+  reviewer      User        @relation(fields: [reviewerId], references: [id], onDelete: Cascade)
+
+  @@unique([certificateId, reviewerId])
+  @@index([certificateId])
+  @@index([reviewerId])
+  @@index([decision])
+}

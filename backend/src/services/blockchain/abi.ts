@@ -1,0 +1,75 @@
+export const REGISTRY_ABI = [
+  {
+    inputs: [],
+    name: "owner",
+    outputs: [{ internalType: "address", name: "", type: "address" }],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [{ internalType: "address", name: "issuer", type: "address" }],
+    name: "authorizedIssuers",
+    outputs: [{ internalType: "bool", name: "", type: "bool" }],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      { internalType: "string", name: "certificateId", type: "string" },
+      { internalType: "string", name: "certHashHex",   type: "string" },
+    ],
+    name: "registerCertificate",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [{ internalType: "string", name: "certHashHex", type: "string" }],
+    name: "verifyCertificate",
+    outputs: [
+      { internalType: "bool",    name: "exists",    type: "bool"    },
+      { internalType: "bool",    name: "revoked",   type: "bool"    },
+      { internalType: "address", name: "issuer",    type: "address" },
+      { internalType: "uint256", name: "timestamp", type: "uint256" },
+      { internalType: "string",  name: "certId",    type: "string"  },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [{ internalType: "string", name: "certHashHex", type: "string" }],
+    name: "revokeCertificate",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [{ internalType: "string", name: "certHashHex", type: "string" }],
+    name: "isValid",
+    outputs: [{ internalType: "bool", name: "", type: "bool" }],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      { indexed: true,  internalType: "string",  name: "certificateId", type: "string"  },
+      { indexed: true,  internalType: "bytes32", name: "certHash",      type: "bytes32" },
+      { indexed: true,  internalType: "address", name: "issuer",        type: "address" },
+      { indexed: false, internalType: "uint256", name: "timestamp",     type: "uint256" },
+    ],
+    name: "CertificateRegistered",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      { indexed: true,  internalType: "string",  name: "certificateId", type: "string"  },
+      { indexed: true,  internalType: "bytes32", name: "certHash",      type: "bytes32" },
+      { indexed: true,  internalType: "address", name: "revokedBy",     type: "address" },
+      { indexed: false, internalType: "uint256", name: "timestamp",     type: "uint256" },
+    ],
+    name: "CertificateRevoked",
+    type: "event",
+  },
+] as const;
