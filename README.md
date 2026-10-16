@@ -1,5 +1,5 @@
 # CertiChain— Digital Certificate Management Platform
-Live :-[https://certi-chain-1.vercel.app](url) 
+
 <div align="center">
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
