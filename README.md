@@ -1,5 +1,5 @@
 # CertiChain— Digital Certificate Management Platform
-
+Live :-[https://certi-chain-1.vercel.app/](url) 
 <div align="center">
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
@@ -7,7 +7,7 @@
 [![React](https://img.shields.io/badge/React-18-61DAFB)](https://react.dev/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6)](https://www.typescriptlang.org/)
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-336791)](https://www.postgresql.org/)
-https://certi-chain-1.vercel.app/
+
 </div>
 
 CertiChain is a full-stack digital certificate management platform built for organizations that need a secure, scalable, and auditable way to issue, manage, and validate credentials. It combines a modern React frontend, a TypeScript backend, database-driven certificate logic, and optional blockchain anchoring to give institutions a trustworthy certificate workflow from issuance to verification.
