@@ -12,24 +12,24 @@ datasource db {
 // Valid values documented below each field.
 
 model User {
-  id             String   @id @default(uuid())
-  name           String
-  email          String   @unique
-  passwordHash   String?
-  role           String   @default("USER")        // "USER" | "SUPER_ADMIN"
-  emailVerified  Boolean  @default(false)
-  emailToken     String?
-  resetToken     String?
-  resetTokenExp  DateTime?
-  oauthProvider  String?
-  oauthId        String?
-  avatarUrl      String?
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
+  id            String    @id @default(uuid())
+  name          String
+  email         String    @unique
+  passwordHash  String?
+  role          String    @default("USER") // "USER" | "SUPER_ADMIN"
+  emailVerified Boolean   @default(false)
+  emailToken    String?
+  resetToken    String?
+  resetTokenExp DateTime?
+  oauthProvider String?
+  oauthId       String?
+  avatarUrl     String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
 
-  memberships    OrgMember[]
-  auditLogs      AuditLog[]
-  reviews        CertificateReview[]
+  memberships OrgMember[]
+  auditLogs   AuditLog[]
+  reviews     CertificateReview[]
 
   @@index([email])
 }
@@ -60,11 +60,11 @@ model OrgMember {
   id             String   @id @default(uuid())
   organizationId String
   userId         String
-  role           String   @default("STAFF")       // "OWNER" | "ADMIN" | "STAFF"
+  role           String   @default("STAFF") // "OWNER" | "ADMIN" | "STAFF"
   createdAt      DateTime @default(now())
 
-  organization   Organization  @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-  user           User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  user         User         @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([organizationId, userId])
   @@index([organizationId])
@@ -75,13 +75,13 @@ model CertificateTemplate {
   id             String   @id @default(uuid())
   organizationId String
   name           String
-  configuration  String   // JSON string
+  configuration  String // JSON string
   previewUrl     String?
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
 
-  organization   Organization  @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-  certificates   Certificate[]
+  organization Organization  @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  certificates Certificate[]
 
   @@index([organizationId])
 }
@@ -94,8 +94,8 @@ model Recipient {
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
 
-  organization   Organization  @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-  certificates   Certificate[]
+  organization Organization  @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  certificates Certificate[]
 
   @@unique([organizationId, email])
   @@index([organizationId])
@@ -103,35 +103,35 @@ model Recipient {
 }
 
 model Certificate {
-  id              String   @id @default(uuid())
-  certificateId   String   @unique
-  organizationId  String
-  templateId      String?
-  recipientId     String
-  title           String
-  description     String?
-  achievement     String?
-  customMessage   String?
-  issueDate       DateTime
-  expiryDate      DateTime?
-  status          String   @default("ACTIVE")          // "ACTIVE" | "REVOKED" | "EXPIRED"
-  pdfUrl          String?
-  qrCodeUrl       String?
-  verificationUrl String
-  certificateHash      String?
-  issuedById           String?
-  blockchainTxHash     String?
-  blockchainHash       String?
-  blockchainStatus     String   @default("PENDING")    // "PENDING" | "CONFIRMED" | "FAILED"
-  blockchainNetwork    String?
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  id                String    @id @default(uuid())
+  certificateId     String    @unique
+  organizationId    String
+  templateId        String?
+  recipientId       String
+  title             String
+  description       String?
+  achievement       String?
+  customMessage     String?
+  issueDate         DateTime
+  expiryDate        DateTime?
+  status            String    @default("ACTIVE") // "ACTIVE" | "REVOKED" | "EXPIRED"
+  pdfUrl            String?
+  qrCodeUrl         String?
+  verificationUrl   String
+  certificateHash   String?
+  issuedById        String?
+  blockchainTxHash  String?
+  blockchainHash    String?
+  blockchainStatus  String    @default("PENDING") // "PENDING" | "CONFIRMED" | "FAILED"
+  blockchainNetwork String?
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
 
-  organization    Organization          @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-  template        CertificateTemplate?  @relation(fields: [templateId], references: [id])
-  recipient       Recipient             @relation(fields: [recipientId], references: [id])
-  revocation      Revocation?
-  reviews         CertificateReview[]
+  organization Organization         @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  template     CertificateTemplate? @relation(fields: [templateId], references: [id])
+  recipient    Recipient            @relation(fields: [recipientId], references: [id])
+  revocation   Revocation?
+  reviews      CertificateReview[]
 
   @@index([certificateId])
   @@index([organizationId])
@@ -147,7 +147,7 @@ model Revocation {
   revokedById   String?
   revokedAt     DateTime @default(now())
 
-  certificate   Certificate @relation(fields: [certificateId], references: [id], onDelete: Cascade)
+  certificate Certificate @relation(fields: [certificateId], references: [id], onDelete: Cascade)
 }
 
 model AuditLog {
@@ -157,12 +157,12 @@ model AuditLog {
   action         String
   resourceType   String?
   resourceId     String?
-  metadata       String?  // JSON string
+  metadata       String? // JSON string
   ipAddress      String?
   createdAt      DateTime @default(now())
 
-  organization   Organization? @relation(fields: [organizationId], references: [id])
-  user           User?         @relation(fields: [userId], references: [id])
+  organization Organization? @relation(fields: [organizationId], references: [id])
+  user         User?         @relation(fields: [userId], references: [id])
 
   @@index([organizationId])
   @@index([userId])
@@ -181,18 +181,18 @@ model VerificationLog {
 }
 
 model StaffInvitation {
-  id             String   @id @default(uuid())
+  id             String    @id @default(uuid())
   organizationId String
   email          String
-  tokenHash      String   @unique
-  role           String   @default("STAFF")            // "OWNER" | "ADMIN" | "STAFF"
-  status         String   @default("PENDING")          // "PENDING" | "ACCEPTED" | "EXPIRED"
+  tokenHash      String    @unique
+  role           String    @default("STAFF") // "OWNER" | "ADMIN" | "STAFF"
+  status         String    @default("PENDING") // "PENDING" | "ACCEPTED" | "EXPIRED"
   invitedById    String?
   expiresAt      DateTime
   acceptedAt     DateTime?
-  createdAt      DateTime @default(now())
+  createdAt      DateTime  @default(now())
 
-  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
 
   @@unique([organizationId, email])
   @@index([tokenHash])
@@ -200,16 +200,16 @@ model StaffInvitation {
 }
 
 model CertificateReview {
-  id            String   @id @default(uuid())
+  id            String    @id @default(uuid())
   certificateId String
   reviewerId    String
-  decision      String   @default("PENDING")           // "PENDING" | "APPROVED" | "REJECTED"
+  decision      String    @default("PENDING") // "PENDING" | "APPROVED" | "REJECTED"
   comment       String?
   decidedAt     DateTime?
-  createdAt     DateTime @default(now())
+  createdAt     DateTime  @default(now())
 
-  certificate   Certificate @relation(fields: [certificateId], references: [id], onDelete: Cascade)
-  reviewer      User        @relation(fields: [reviewerId], references: [id], onDelete: Cascade)
+  certificate Certificate @relation(fields: [certificateId], references: [id], onDelete: Cascade)
+  reviewer    User        @relation(fields: [reviewerId], references: [id], onDelete: Cascade)
 
   @@unique([certificateId, reviewerId])
   @@index([certificateId])
